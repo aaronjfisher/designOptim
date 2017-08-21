@@ -1,0 +1,15 @@
+Package: designOptim
+Title: Design optimizer
+Version: 0.0.1
+Authors@R: c(person("Aaron", "Fisher", email = "aaron.joel.fisher@gmail.com", role = c("aut", "cre")),person("Michael", "Rosenblum", email = "mrosenblum@gmail.com", role = c("aut")),person("John", "Muschelli", email = "muschellij2@gmail.com", role = c("ctb")))
+Description: Use simulated annealing to search over a space of trial designs. The primary user facing function is optimizeTrial.
+Depends: R (>= 3.0.2) 
+Imports: 
+  dplyr,
+  mvtnorm,
+  gtools,
+  GenSA,
+  methods
+License: GPL-2
+LazyData: true
+RoxygenNote: 6.0.1
