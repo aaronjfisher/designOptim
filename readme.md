@@ -17,7 +17,7 @@ install.packages("devtools")
 ## main package
 library(devtools)
 
-install_github('aaronjfisher/designOptim', auth_token = auth_token)
+install_github('aaronjfisher/designOptim')
 
 library(designOptim)
 
