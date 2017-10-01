@@ -159,10 +159,16 @@ buildTrial<-function(...){
 
 
 
-#' Compute efficacy boundaries for an adaptive trial
-#'
+#' Compute efficacy stopping boundaries for an adaptive trial design based on
+#' asymptotic, multivariate normal distribution (also called canonical distribution) of test statistics.
+#' The result strongly controls the familywise Type I error rate, based on the 
+#' generalized error-spending approach that allocates alpha (Type I error)
+#' across stages and subpopulations from: 
+#' Rosenblum, M., Thompson, R., Luber, B., Hanley, D. (2016) Group Sequential Designs with Prospectively Planned Rules for Subpopulation Enrichment. Statistics in Medicine. 35(21), 3776-3791. http://goo.gl/7nHAVn
+#' Rosenblum, M., Qian, T., Du, Y., and Qiu, H., Fisher, A. (2016) Multiple Testing Procedures for Adaptive Enrichment Designs: Combining Group Sequential and Reallocation Approaches. Biostatistics. 17(4), 650-662. https://goo.gl/c8GlcH 
+#' 
 #' Let \eqn{H01}, \eqn{H02} and \eqn{H0C} respectively denote the null hypotheses that there is no treatment effect in subpopulation 1, subpopulation 2 and the combined population.
-#'
+#' This function 
 #' 
 #' @param p1 proportion of population in subpopulation 1.
 #' @param r1 probability of being randomized to treatment in subpopulation 1
