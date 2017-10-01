@@ -110,8 +110,10 @@ checkFutilityOverlap<-function(x_null, x_len){
 
 
 #' Generate efficacy boundaries and then calculate trial performance
-#'
-#' This function calls \code{\link{getEffBounds}} and then \code{\link{simTrial}}, and can be useful for ensuring that efficacy boundaries are computed with the same arguments used to evaluate the trial's performance.
+#' This function first constructs the efficacy boundaries 
+#' for an adaptive enrichment design by calling \code{\link{getEffBounds}}
+#' and then simulates the trial design by calling \code{\link{simTrial}.
+#' It ensures that efficacy boundaries are computed with the same arguments used to evaluate the trial's performance.
 #'
 #' Optionally, the user can specifically input \code{all_efficacy_boundaries} (or input \code{H01_efficacy_boundaries}, \code{H02_efficacy_boundaries}, and \code{H0C_efficacy_boundaries}), and \code{\link{getEffBounds}} will not be called. However, in such cases, it is simpler to just use the \code{\link{simTrial}} function directly. 
 #'
@@ -159,14 +161,14 @@ buildTrial<-function(...){
 
 
 
-#' Compute efficacy stopping boundaries for an adaptive trial design based on
+#' Compute efficacy stopping boundaries for an adaptive enrichment trial design based on
 #' asymptotic, multivariate normal distribution (also called canonical distribution) of test statistics.
 #' The result strongly controls the familywise Type I error rate, based on the 
 #' generalized error-spending approach that allocates alpha (Type I error)
-#' across stages and subpopulations from: 
-#' Rosenblum, M., Thompson, R., Luber, B., Hanley, D. (2016) Group Sequential Designs with Prospectively Planned Rules for Subpopulation Enrichment. Statistics in Medicine. 35(21), 3776-3791. http://goo.gl/7nHAVn
+#' across stages and populations using the M_{COV} multiple testing procedure from:
 #' Rosenblum, M., Qian, T., Du, Y., and Qiu, H., Fisher, A. (2016) Multiple Testing Procedures for Adaptive Enrichment Designs: Combining Group Sequential and Reallocation Approaches. Biostatistics. 17(4), 650-662. https://goo.gl/c8GlcH 
-#' 
+#' The algorithm for efficacy boundary construction involves sequential computation
+#' of the multivariate normal distribution using the package mvtnorm.
 #' Let \eqn{H01}, \eqn{H02} and \eqn{H0C} respectively denote the null hypotheses that there is no treatment effect in subpopulation 1, subpopulation 2 and the combined population.
 #' This function 
 #' 
@@ -384,8 +386,12 @@ return(list(
 
 
 
-#' Simulate a trial to compute its power, expected sample size, and expected duration
-#'
+#' Simulates an adaptive enrichment trial design to compute the following
+#' performance criteria: power, expected sample size, and expected duration.
+#' First, cumulative Z-statistics are constructed for each stage and population.
+#' Next, the enrollment modification rule and multiple testing procedure are applied
+#' at each stage, which determines when accrual is stopped for each subpopulation
+#' and when (if at all) each population's null hypothesis is rejected. 
 #' If efficacy boundaries have not yet been computed, the user should consider using \code{\link{buildTrial}}, which automatically completes this precursor step.
 #'  
 #' Let \eqn{H01}, \eqn{H02} and \eqn{H0C} respectively denote the null hypotheses that there is no treatment effect in subpopulation 1, subpopulation 2 and the combined population.
