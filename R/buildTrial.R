@@ -170,7 +170,6 @@ buildTrial<-function(...){
 #' The algorithm for efficacy boundary construction involves sequential computation
 #' of the multivariate normal distribution using the package mvtnorm.
 #' Let \eqn{H01}, \eqn{H02} and \eqn{H0C} respectively denote the null hypotheses that there is no treatment effect in subpopulation 1, subpopulation 2 and the combined population.
-#' This function 
 #' 
 #' @param p1 proportion of population in subpopulation 1.
 #' @param r1 probability of being randomized to treatment in subpopulation 1
