@@ -11,7 +11,7 @@
 #' A general parametric form for allocating alpha or creating futility boundaries. For details, see Fisher and Rosenblum (2016).
 #' @param n_per_stage vector of sample sizes, or a vector proportional to these sample sizes
 #' @param delta_vec a vector with elements greater than or equal to 0, one for each boundary to be computed (e.g. one for H_01, one for H_02, and one for H_0C).
-#' @param coefficients_vec a vector of contraints, one for each boundary to be computed (e.g. one for H_01, one for H_02, and one for H_0C)
+#' @param coefficients_vec a vector of constraints, one for each boundary to be computed (e.g. one for H_01, one for H_02, and one for H_0C)
 #' @param intercepts_vec a vector of constants to be added to the set to zero for efficacy boundaries
 #' @param takeDiffs set to TRUE if calculating efficacy boundaries
 #' @return A matrix with each row corresponding to one boundary (one hypothesis).
