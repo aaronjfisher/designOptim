@@ -16,18 +16,10 @@ buildTrial_Maurer_Bretz_2013 <-function(...){
 }
 
 
-#' Compute efficacy boundaries for an adaptive trial using method from Maurer Bretz (2013)
-#'
-#' All arguments are analagous to \code{\link{getEffBounds}}, with the addition of three parameters: \code{graph_edge_12}, \code{graph_edge_2C}, and \code{graph_edge_C1}.
-#' 
-#' @param graph_edge_12 The proportion of alpha to reallocate from H_01 to H_02 in the event that H_01 is rejected
-#' @param graph_edge_2C The proportion of alpha to reallocate from H_02 to H_0C in the event that H_02 is rejected
-#' @param graph_edge_C1 The proportion of alpha to reallocate from H_0C to H_01 in the event that H_0C is rejected
-#'
+#' @rdname getEffBounds
 #' @export
 #' @import mvtnorm
 #' @importFrom stats rnorm
-#' @references Maurer, W. and F. Bretz (2013). Multiple testing in group sequential trials using graphical approaches. \emph{Statistics in Biopharmaceutical Research.}
 getEffBounds_Maurer_Bretz_2013 <-function(p1,
 	r1,
 	r2,
@@ -165,14 +157,10 @@ for(j in 1:num_stages){
 	return(all_efficacy_boundaries)
 }
 
-#' Simulate a trial to compute its power, expected sample size, and expected duration using method from Maurer Bretz (2013)
-#'
-#' All arguments are analagous to \code{\link{simTrial}}. However, additional parameters are required by \code{\link{getEffBounds_Maurer_Bretz_2013}}.
-#'
-#' @param ... passed to \code{\link{getEffBounds_Maurer_Bretz_2013}}
-#'
+
+
 #' @export
-#' @references Maurer, W. and F. Bretz (2013). Multiple testing in group sequential trials using graphical approaches. \emph{Statistics in Biopharmaceutical Research.}
+#' @rdname simTrial
 simTrial_Maurer_Bretz_2013 <- function(
 ## Note: throughout, we denote the treatment arm by A=1 and control arm by A=0. 
 

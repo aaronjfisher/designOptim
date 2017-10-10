@@ -322,6 +322,7 @@ min_perf_power_constraints<-function(cases, metric, skip_penalty, exp_p=3){
 #' Sample objective function to minimize
 #'
 #' \code{\link{optimizeTrial}} requires users to input an objective function to evaluate the trial design in each case. \code{min_E_SS_power_constraints} is a pre-set option for an objective function based on expected sample size. \code{min_E_dur_power_constraints} is a pre-set option for an objective function based on expected duration. Both functions' output a list including a penalized objective function value. Any custom objective function supplied to  \code{\link{optimizeTrial}} must be able to run in the context of the \code{\link{get_case_perf_obj}} function, and give output in the same format as that of the functions below. 
+#' @param ... for internal use.
 #' @export
 #' @return a list containing
 #' \item{base}{the expected sample size, or expected duration}
@@ -347,7 +348,7 @@ min_E_dur_power_constraints <- function(...) {
 #'
 #' @param ... is passed to \code{objective_fun}
 #' @param base_args the trial design and other inputs to functions determined by \code{trial_method}. This corresponds to the combined list of \code{args_list_init} and \code{args_list_fixed} from \code{\link{optimizeTrial}}.
-#' @param cases analagous to the input for \code{\link{optimizeTrial}}.
+#' @param cases analogous to the input for \code{\link{optimizeTrial}}.
 #' @param objective_fun a function to evaluate the design, see \code{\link{optimizeTrial}}.
 #' @param trial_method either 'MB' or 'cov', depending on the type of design being used. See \code{\link{optimizeTrial}}
 #' @param return_entries a list of strings telling which elements of the returned value from \code{objective_fun} should be stored. Set to 'all' to return all elements from functions determined by \code{trial_method}.
@@ -451,7 +452,7 @@ get_perf_mat<-function(perf_list){
 #'
 #' We aim to minimize an objective function which we aim to minimize is the expected sample size, with additive penalties on power. If power for any alternative hypothesis is less than a supplied threshold (see \code{cases}), a penalty will be applied.
 #'
-#' The argument \code{trial_method} determines which type of trial should be performed ('cov' or 'MB'). Based on this, the relevant trial paramaters to be optimized should be listed in \code{args_list_init}. The parameters to hold fixed should be listed in \code{args_list_fixed}.
+#' The argument \code{trial_method} determines which type of trial should be performed ('cov' or 'MB'). Based on this, the relevant trial parameters to be optimized should be listed in \code{args_list_init}. The parameters to hold fixed should be listed in \code{args_list_fixed}.
 #'
 #' The \code{cases} argument should be a list of cases in which power, expected sample size and/or expected duration should be calculated. Internally, at each iteration of the search, the \code{\link{get_case_perf_obj}} function is used to evaluate the trial.
 #'
@@ -474,12 +475,12 @@ get_perf_mat<-function(perf_list){
 #' @param parscale_ratio_K used to create the \code{parscale} argument passed to \code{\link{optim}}. Tells the change in the number of stages that is comparable to a unit change in other parameters.
 #' @param parscale_ratio_logit used to create the \code{parscale} argument passed to \code{\link{optim}}. For any parameter where do search for optimal values on the logit space, this tells the unit change that is comparable to a unit change in other parameters.
 #' @param build_precision if TRUE, the search will start by making approximate calculations for the efficacy boundaries, and will increase the precision of these efficacy boundary calculations as the search progresses.
-#' @param print_interval if set to \code{NULL}, no intermediate results will be reported. If set to a positive integer, this integer tells the number of simulated annealing steps to run inbetween results being printed to the console. The last number printed in each line of results is best objective function yet found. This report is a more detailed version of the results generally reported by \code{\link{optim}}, if \code{control$trace=1}.
+#' @param print_interval if set to \code{NULL}, no intermediate results will be reported. If set to a positive integer, this integer tells the number of simulated annealing steps to run in between results being printed to the console. The last number printed in each line of results is best objective function yet found. This report is a more detailed version of the results generally reported by \code{\link{optim}}, if \code{control$trace=1}.
 #' @param npoints_sqrt passed to \code{\link{feasibility_check}} to see if it is indeed possibly to have a trial at this sample size that meets the power constraints. If not, no optimization is performed.
 #' @param stage1_feasible output from \code{\link{min_n_feasible}}, if pre-calculated. If supplied, trial feasibility will be assumed.
 #' @param returnFullPath (logical) tells whether the entire history of the search should be returned as well.
 #' @param verbose (logical) should progress be printed via \code{\link{message}}.
-#' @param print_obj (logical) In progress reports, should the objective function be printed rather than just the interpretable, unpelanized expected sample size.
+#' @param print_obj (logical) In progress reports, should the objective function be printed rather than just the interpretable, unpenalized expected sample size.
 #' @return A list of results with
 #'
 #' \item{soln}{the best design found during optimization}
@@ -487,7 +488,7 @@ get_perf_mat<-function(perf_list){
 #' \item{obj_final_crossvalidated}{The objective function value of the design from optim. Like \code{performance_crossvalidated}, this value is recalculated after the optimization procedure.}
 #' \item{optim_results}{output from \code{\link{optim}}}
 #' \item{obj_penalized_trajectory}{Each evaluation of the objective function.}
-#' \item{fullPath}{design and results from each iteration of the optimizaiton}
+#' \item{fullPath}{design and results from each iteration of the optimization}
 #' \item{time_optimized}{time taken for optimization procedure}
 #' \item{stage1_feasible}{output from \code{\link{min_n_feasible}}}
 #' \item{feasible}{[DEPRECATED]}

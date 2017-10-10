@@ -3,9 +3,9 @@ designOptim
 
 [![Travis-CI Build Status](https://travis-ci.org/<USERNAME>/<REPO>.png?branch=master)](https://travis-ci.org/<USERNAME>/<REPO>)
 
-An R package for building trials, simulating trials, and searching for optimal trials. The highest level user-facing functions are
+An R package for building adaptive enrichment trials, simulating trials, and searching for optimal trials. The highest level user-facing functions are
 
-* `buildTrial` for building trials, and
+* `buildTrial` for creating trials with controlled Type I error rates, and
 * `optimizeTrial` for searching for trials
 
 To install and see help pages:

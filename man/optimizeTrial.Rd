@@ -53,7 +53,7 @@ optimizeTrial(args_list_init, args_list_fixed, cases, max_K = 20,
 
 \item{build_precision}{if TRUE, the search will start by making approximate calculations for the efficacy boundaries, and will increase the precision of these efficacy boundary calculations as the search progresses.}
 
-\item{print_interval}{if set to \code{NULL}, no intermediate results will be reported. If set to a positive integer, this integer tells the number of simulated annealing steps to run inbetween results being printed to the console. The last number printed in each line of results is best objective function yet found. This report is a more detailed version of the results generally reported by \code{\link{optim}}, if \code{control$trace=1}.}
+\item{print_interval}{if set to \code{NULL}, no intermediate results will be reported. If set to a positive integer, this integer tells the number of simulated annealing steps to run in between results being printed to the console. The last number printed in each line of results is best objective function yet found. This report is a more detailed version of the results generally reported by \code{\link{optim}}, if \code{control$trace=1}.}
 
 \item{npoints_sqrt}{passed to \code{\link{feasibility_check}} to see if it is indeed possibly to have a trial at this sample size that meets the power constraints. If not, no optimization is performed.}
 
@@ -63,7 +63,7 @@ optimizeTrial(args_list_init, args_list_fixed, cases, max_K = 20,
 
 \item{verbose}{(logical) should progress be printed via \code{\link{message}}.}
 
-\item{print_obj}{(logical) In progress reports, should the objective function be printed rather than just the interpretable, unpelanized expected sample size.}
+\item{print_obj}{(logical) In progress reports, should the objective function be printed rather than just the interpretable, unpenalized expected sample size.}
 }
 \value{
 A list of results with
@@ -73,7 +73,7 @@ A list of results with
 \item{obj_final_crossvalidated}{The objective function value of the design from optim. Like \code{performance_crossvalidated}, this value is recalculated after the optimization procedure.}
 \item{optim_results}{output from \code{\link{optim}}}
 \item{obj_penalized_trajectory}{Each evaluation of the objective function.}
-\item{fullPath}{design and results from each iteration of the optimizaiton}
+\item{fullPath}{design and results from each iteration of the optimization}
 \item{time_optimized}{time taken for optimization procedure}
 \item{stage1_feasible}{output from \code{\link{min_n_feasible}}}
 \item{feasible}{[DEPRECATED]}
@@ -84,7 +84,7 @@ A list of results with
 We aim to minimize an objective function which we aim to minimize is the expected sample size, with additive penalties on power. If power for any alternative hypothesis is less than a supplied threshold (see \code{cases}), a penalty will be applied.
 }
 \details{
-The argument \code{trial_method} determines which type of trial should be performed ('cov' or 'MB'). Based on this, the relevant trial paramaters to be optimized should be listed in \code{args_list_init}. The parameters to hold fixed should be listed in \code{args_list_fixed}.
+The argument \code{trial_method} determines which type of trial should be performed ('cov' or 'MB'). Based on this, the relevant trial parameters to be optimized should be listed in \code{args_list_init}. The parameters to hold fixed should be listed in \code{args_list_fixed}.
 
 The \code{cases} argument should be a list of cases in which power, expected sample size and/or expected duration should be calculated. Internally, at each iteration of the search, the \code{\link{get_case_perf_obj}} function is used to evaluate the trial.
 }

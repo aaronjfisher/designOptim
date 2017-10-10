@@ -10,7 +10,7 @@ get_case_perf_obj(base_args, cases, objective_fun, trial_method,
 \arguments{
 \item{base_args}{the trial design and other inputs to functions determined by \code{trial_method}. This corresponds to the combined list of \code{args_list_init} and \code{args_list_fixed} from \code{\link{optimizeTrial}}.}
 
-\item{cases}{analagous to the input for \code{\link{optimizeTrial}}.}
+\item{cases}{analogous to the input for \code{\link{optimizeTrial}}.}
 
 \item{objective_fun}{a function to evaluate the design, see \code{\link{optimizeTrial}}.}
 

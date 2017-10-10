@@ -193,7 +193,7 @@ binsearchtol <- function(fun, tol=1, range, ...){
 
 #' Find the smallest total sample size such that a multi-stage trial meets desired constraints
 #'
-#' Takes as input a list of arguments (args) that define an adpative trial (see \code{\link{buildTrial}} or \code{\link{optimizeTrial}}). This function adjusts the \code{n_total} argument in order to find the smallest maximum sample size that meets the power constraints specified in the \code{cases} argument.
+#' Takes as input a list of arguments (args) that define an adaptive trial (see \code{\link{buildTrial}} or \code{\link{optimizeTrial}}). This function adjusts the \code{n_total} argument in order to find the smallest maximum sample size that meets the power constraints specified in the \code{cases} argument.
 #'
 #' This function requires that the objective function contain a 'base' element, and a 'power_diffs' element that is nonnegative when power constraints are met. For example, see \code{\link{min_E_SS_power_constraints}}.
 #'

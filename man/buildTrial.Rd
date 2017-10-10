@@ -13,7 +13,10 @@ buildTrial(...)
 the return value of \code{\link{simTrial}}
 }
 \description{
-This function calls \code{\link{getEffBounds}} and then \code{\link{simTrial}}, and can be useful for ensuring that efficacy boundaries are computed with the same arguments used to evaluate the trial's performance.
+This function first constructs the efficacy boundaries 
+for an adaptive enrichment design by calling \code{\link{getEffBounds}}
+and then simulates the trial design by calling \code{\link{simTrial}}.
+It ensures that efficacy boundaries are computed with the same arguments used to evaluate the trial's performance.
 }
 \details{
 Optionally, the user can specifically input \code{all_efficacy_boundaries} (or input \code{H01_efficacy_boundaries}, \code{H02_efficacy_boundaries}, and \code{H0C_efficacy_boundaries}), and \code{\link{getEffBounds}} will not be called. However, in such cases, it is simpler to just use the \code{\link{simTrial}} function directly.

@@ -1,7 +1,7 @@
 # Functions to create and evaluate adaptive designs based on the covariance matrix
 
 #Things to add:
-# Decision theoretic problem - give reccomendations for who should get the treatment. Maximize # who benefit and minimize # who don't benefit.
+# Decision theoretic problem - give recommendations for who should get the treatment. Maximize # who benefit and minimize # who don't benefit.
 
 
 
@@ -10,8 +10,8 @@
 #'
 #' A general parametric form for allocating alpha or creating futility boundaries. For details, see Fisher and Rosenblum (2016).
 #' @param n_per_stage vector of sample sizes, or a vector proportional to these sample sizes
-#' @param delta_vec a vector with elements greater than or equal to 0, one for each boundary to be computed (e.g. one for H_01, one for H_02, and one for H_0C).
-#' @param coefficients_vec a vector of contraints, one for each boundary to be computed (e.g. one for H_01, one for H_02, and one for H_0C)
+#' @param delta_vec a vector with elements greater than or equal to 0, one for each boundary to be computed (e.g. one for \eqn{H01}, one for \eqn{H02}, and one for \eqn{H0C}).
+#' @param coefficients_vec a vector of constants, one for each boundary to be computed (e.g. one for \eqn{H01}, one for \eqn{H02}, and one for \eqn{H0C})
 #' @param intercepts_vec a vector of constants to be added to the set to zero for efficacy boundaries
 #' @param takeDiffs set to TRUE if calculating efficacy boundaries
 #' @return A matrix with each row corresponding to one boundary (one hypothesis).
@@ -110,9 +110,10 @@ checkFutilityOverlap<-function(x_null, x_len){
 
 
 #' Generate efficacy boundaries and then calculate trial performance
+#' 
 #' This function first constructs the efficacy boundaries 
 #' for an adaptive enrichment design by calling \code{\link{getEffBounds}}
-#' and then simulates the trial design by calling \code{\link{simTrial}.
+#' and then simulates the trial design by calling \code{\link{simTrial}}.
 #' It ensures that efficacy boundaries are computed with the same arguments used to evaluate the trial's performance.
 #'
 #' Optionally, the user can specifically input \code{all_efficacy_boundaries} (or input \code{H01_efficacy_boundaries}, \code{H02_efficacy_boundaries}, and \code{H0C_efficacy_boundaries}), and \code{\link{getEffBounds}} will not be called. However, in such cases, it is simpler to just use the \code{\link{simTrial}} function directly. 
@@ -161,23 +162,22 @@ buildTrial<-function(...){
 
 
 
-#' Compute efficacy stopping boundaries for an adaptive enrichment trial design based on
-#' asymptotic, multivariate normal distribution (also called canonical distribution) of test statistics.
-#' The result strongly controls the familywise Type I error rate, based on the 
+#' Compute efficacy stopping boundaries for an adaptive enrichment trial design
+#' 
+#' \code{getEffBounds} is based on asymptotic, multivariate normal distribution (also called canonical distribution) of test statistics (Rosenblum et al., 2016). \code{getEffBounds_Maurer_Bretz_2013} uses method from Maurer Bretz (2013).\cr\cr Let \eqn{H01}, \eqn{H02} and \eqn{H0C} respectively denote the null hypotheses that there is no treatment effect in subpopulation 1, subpopulation 2 and the combined population.
+#'
+#' \code{getEffBounds}  strongly controls the familywise Type I error rate, based on the 
 #' generalized error-spending approach that allocates alpha (Type I error)
-#' across stages and populations using the M_{COV} multiple testing procedure from:
-#' Rosenblum, M., Qian, T., Du, Y., and Qiu, H., Fisher, A. (2016) Multiple Testing Procedures for Adaptive Enrichment Designs: Combining Group Sequential and Reallocation Approaches. Biostatistics. 17(4), 650-662. https://goo.gl/c8GlcH 
+#' across stages and populations using the M_{COV} multiple testing procedure from Rosenblum et al. (2016).
 #' The algorithm for efficacy boundary construction involves sequential computation
 #' of the multivariate normal distribution using the package mvtnorm.
-#' Let \eqn{H01}, \eqn{H02} and \eqn{H0C} respectively denote the null hypotheses that there is no treatment effect in subpopulation 1, subpopulation 2 and the combined population.
-#' This function 
 #' 
 #' @param p1 proportion of population in subpopulation 1.
 #' @param r1 probability of being randomized to treatment in subpopulation 1
 #' @param r2 probability of being randomized to treatment in subpopulation 2
-#' @param var_s1_trt variance of the outcome under treament in subpopluation 1.
+#' @param var_s1_trt variance of the outcome under treatment in subpopluation 1.
 #' @param var_s1_con variance of the outcome under control in subpopluation 1.
-#' @param var_s2_trt variance of the outcome under treament in subpopluation 2.
+#' @param var_s2_trt variance of the outcome under treatment in subpopluation 2.
 #' @param var_s2_con variance of the outcome under control in subpopluation 2.
 #' @param time_limit time limit for calculations
 #' @param num_stages number of stages for the trial
@@ -195,11 +195,18 @@ buildTrial<-function(...){
 #' @param abseps passed to pmvnorm in determining precision of calculations.
 #' @param maxpts passed to pmvnorm in determining precision of calculations.
 #' @param errtol determines precision of calculation of z-score boundary.
+#' @param graph_edge_12 (Maurer, Bretz; 2013) The proportion of alpha to reallocate from \eqn{H01} to \eqn{H02} in the event that \eqn{H01} is rejected
+#' @param graph_edge_2C (Maurer, Bretz; 2013) The proportion of alpha to reallocate from \eqn{H02} to \eqn{H0C} in the event that \eqn{H02} is rejected
+#' @param graph_edge_C1 (Maurer, Bretz; 2013) The proportion of alpha to reallocate from \eqn{H0C} to \eqn{H01} in the event that \eqn{H0C} is rejected
 #' @param ... needed so that function ignores unused arguments when called by \code{\link{buildTrial}}
 #' @export
 #' @import mvtnorm 
 #' @importFrom stats rnorm optim
-#' @return a list of efficacy boundaries for the z-statistics corresponding to each null hypothesis.
+#' @references 
+#' Maurer, W. and Bretz, F. (2013). Multiple testing in group sequential trials using graphical approaches. \emph{Statistics in Biopharmaceutical Research.}
+#' \cr \cr
+#' Rosenblum, M., Qian, T., Du, Y., and Qiu, H., Fisher, A. (2016). Multiple Testing Procedures for Adaptive Enrichment Designs: Combining Group Sequential and Reallocation Approaches. \emph{Biostatistics}. 17(4), 650-662. https://goo.gl/c8GlcH 
+#' @return A list of efficacy boundaries for the z-statistics corresponding to each null hypothesis.
 #' @examples \dontrun{
 #'
 #' # Fully allocate the error for each stage
@@ -215,15 +222,17 @@ buildTrial<-function(...){
 #' 	 n_total = NULL,
 #' 	 n_per_stage = rep(200,K),
 #' 	 FWER = 0.025,
+#' 	 abseps = 0.000001,
+#' 	 errtol = .01,
+#' 	 maxpts = 10000,
 #'
 #' 	 H01_eff_allocated=rep(0.025/(3*K),K),
 #' 	 H02_eff_allocated=rep(0.025/(3*K),K),
 #' 	 H0C_eff_allocated=rep(0.025/(3*K),K)
 #' 	 )
-#' # Use boundaries similar to O'Brien Flemming, with a parametric
-#' # form that specifies the Type I error spent at each stage
-#' # (note the changes in specifying the last four arguments)
-#' getEffBounds(p1 = 0.33,
+#'
+#' # Boundaries for Maurer Bretz 2013
+#' getEffBounds_Maurer_Bretz_2013(p1 = 0.33,
 #' 	 r1 = 1/2,
 #' 	 r2 = 1/2,
 #' 	 var_s1_trt = 0.375*(1-0.375),
@@ -234,12 +243,19 @@ buildTrial<-function(...){
 #' 	 n_total = NULL,
 #' 	 n_per_stage = rep(200,K),
 #' 	 FWER = 0.025,
+#' 	 abseps = 0.000001,
+#' 	 errtol = .01,
+#' 	 maxpts = 10000,
 #'
-#' 	 delta_eff = .5, 
-#' 	 H01_eff_total_allocated = 0.025/3,
-#' 	 H02_eff_total_allocated = 0.025/3,
-#' 	 H0C_eff_total_allocated = 0.025/3
-#' 	)
+#' 	 graph_edge_12=0.5,
+#' 	 graph_edge_2C=0.5,
+#' 	 graph_edge_C1=0.5,
+#' 	 time_limit = 100,
+#'
+#' 	 H01_eff_allocated=rep(0.025/(3*K),K),
+#' 	 H02_eff_allocated=rep(0.025/(3*K),K),
+#' 	 H0C_eff_allocated=rep(0.025/(3*K),K)
+#' 	 )
 #'
 #'
 #'}
@@ -386,26 +402,21 @@ return(list(
 
 
 
-#' Simulates an adaptive enrichment trial design to compute the following
-#' performance criteria: power, expected sample size, and expected duration.
-#' First, cumulative Z-statistics are constructed for each stage and population.
-#' Next, the enrollment modification rule and multiple testing procedure are applied
-#' at each stage, which determines when accrual is stopped for each subpopulation
-#' and when (if at all) each population's null hypothesis is rejected. 
-#' If efficacy boundaries have not yet been computed, the user should consider using \code{\link{buildTrial}}, which automatically completes this precursor step.
-#'  
-#' Let \eqn{H01}, \eqn{H02} and \eqn{H0C} respectively denote the null hypotheses that there is no treatment effect in subpopulation 1, subpopulation 2 and the combined population.
+#' Simulate a trial to compute power, expected sample size, and expected duration
+#'
+#' \code{simTrial} simulates an adaptive enrichment trial design, using the method from Rosenblum et al. (2016), in order to compute the following
+#' performance criteria: power, expected sample size, and expected duration. \code{simTrial_Maurer_Bretz_2013} follows an analogous procedure using the method from Maurer & Bretz (2013). \cr \cr Let \eqn{H01}, \eqn{H02} and \eqn{H0C} respectively denote the null hypotheses that there is no treatment effect in subpopulation 1, subpopulation 2 and the combined population.
 #'
 #' @param p1 Proportion of population in subpopulation 1.
 #' @param r1 probability of being randomized to treatment in subpopulation 1
 #' @param r2 probability of being randomized to treatment in subpopulation 2
-#' @param mean_s1_trt mean of the outcome under treament in subpopluation 1.
+#' @param mean_s1_trt mean of the outcome under treatment in subpopluation 1.
 #' @param mean_s1_con mean of the outcome under control in subpopluation 1.
-#' @param mean_s2_trt mean of the outcome under treament in subpopluation 2.
+#' @param mean_s2_trt mean of the outcome under treatment in subpopluation 2.
 #' @param mean_s2_con mean of the outcome under control in subpopluation 2.
-#' @param var_s1_trt variance of the outcome under treament in subpopluation 1.
+#' @param var_s1_trt variance of the outcome under treatment in subpopluation 1.
 #' @param var_s1_con variance of the outcome under control in subpopluation 1.
-#' @param var_s2_trt variance of the outcome under treament in subpopluation 2.
+#' @param var_s2_trt variance of the outcome under treatment in subpopluation 2.
 #' @param var_s2_con variance of the outcome under control in subpopluation 2.
 #' @param iter The number of simulated trials used to
 #' estimate the power, expected sample size, and expected trial duration.
@@ -416,7 +427,7 @@ return(list(
 #' @param num_stages
 #' Total number of stages
 #' used in each design  (\eqn{K}).  The maximum allowable number of stages is 20.
-#' @param all_efficacy_boundaries a list of efficacy boundaries matching the output of \code{\link{getEffBounds}}
+#' @param all_efficacy_boundaries a list of efficacy boundaries matching the output of \code{\link{getEffBounds}} for \code{simTrial}, or of \code{\link{getEffBounds_Maurer_Bretz_2013}} for \code{simTrial_Maurer_Bretz_2013}.
 #' @param H01_efficacy_boundaries rather than setting \code{all_efficacy_boundaries}, the user can enter vectors for \code{H01_efficacy_boundaries}, \code{H02_efficacy_boundaries}, and \code{H0C_efficacy_boundaries}. 
 #' @param H02_efficacy_boundaries see \code{H01_efficacy_boundaries}
 #' @param H0C_efficacy_boundaries see \code{H01_efficacy_boundaries} 
@@ -424,6 +435,7 @@ return(list(
 #' @param H02_futility_boundaries a vector of futility boundaries for the hypothesis \eqn{H02}.
 #' @param H0C_futility_boundaries Not currently used in the algorithm, but may be added in the future.
 #' @param delta_futility rather than setting the specific futility boundaries, parametric boundaries can be calculated. See \code{\link{getSmoothBounds}}.
+#' @param intercepts_futility for use in \code{\link{getSmoothBounds}}
 #' @param H01_futility_boundary_const for use in \code{\link{getSmoothBounds}}
 #' @param H02_futility_boundary_const for use in \code{\link{getSmoothBounds}}
 #' @param H0C_futility_boundary_const for use in \code{\link{getSmoothBounds}}
@@ -437,16 +449,17 @@ return(list(
 #' @param ... needed so that function ignores unused arguments when called by \code{\link{buildTrial}}
 #' 
 #' @details
-#' This function is meant to be applied when there is prior
-#' evidence that a treatment might work better in a one subpopulation
-#' than in another. In this context, a trial with an adaptive enrollment
-#' criteria would determine whether or not to continue enrolling patients
-#' from each subpopulation based on interim analyses of whether each
-#' subpopulation is benefiting. In order for the type I error and the
-#' power of the trial to be calculable, the decision rules for changing
-#' enrollment must be set before the trial starts. This function simulates trials with decision rules composed of efficacy boundaries and futility boundaries for \eqn{H01}, \eqn{H02}, and \eqn{H0C}, and reports the performance of the trial in
-#' terms of power, expected sample size, and expected trial duration.
-#'
+#' 
+#' For \code{simTrial}, first, cumulative Z-statistics are constructed for each stage and population.
+#' Next, the enrollment modification rule and multiple testing procedure are applied
+#' at each stage, which determines when accrual is stopped for each subpopulation
+#' and when (if at all) each population's null hypothesis is rejected. 
+#' \cr \cr If efficacy boundaries have not yet been computed, the user should consider using \code{\link{buildTrial}} or \code{\link{buildTrial_Maurer_Bretz_2013}}, which automatically complete this precursor step.
+#' 
+#' @references 
+#' Maurer, W. and Bretz, F. (2013). Multiple testing in group sequential trials using graphical approaches. \emph{Statistics in Biopharmaceutical Research.}
+#' \cr \cr
+#' Rosenblum, M., Qian, T., Du, Y., and Qiu, H., Fisher, A. (2016). Multiple Testing Procedures for Adaptive Enrichment Designs: Combining Group Sequential and Reallocation Approaches. \emph{Biostatistics}. 17(4), 650-662. https://goo.gl/c8GlcH 
 #' @export
 #'
 simTrial <- function(

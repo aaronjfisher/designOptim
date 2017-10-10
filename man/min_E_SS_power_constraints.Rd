@@ -9,6 +9,9 @@ min_E_SS_power_constraints(...)
 
 min_E_dur_power_constraints(...)
 }
+\arguments{
+\item{...}{for internal use.}
+}
 \value{
 a list containing
 \item{base}{the expected sample size, or expected duration}

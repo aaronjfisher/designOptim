@@ -10,9 +10,9 @@ getSmoothBounds(n_per_stage, delta_vec, coefficients_vec, intercepts_vec,
 \arguments{
 \item{n_per_stage}{vector of sample sizes, or a vector proportional to these sample sizes}
 
-\item{delta_vec}{a vector with elements greater than or equal to 0, one for each boundary to be computed (e.g. one for H_01, one for H_02, and one for H_0C).}
+\item{delta_vec}{a vector with elements greater than or equal to 0, one for each boundary to be computed (e.g. one for \eqn{H01}, one for \eqn{H02}, and one for \eqn{H0C}).}
 
-\item{coefficients_vec}{a vector of contraints, one for each boundary to be computed (e.g. one for H_01, one for H_02, and one for H_0C)}
+\item{coefficients_vec}{a vector of constants, one for each boundary to be computed (e.g. one for \eqn{H01}, one for \eqn{H02}, and one for \eqn{H0C})}
 
 \item{intercepts_vec}{a vector of constants to be added to the set to zero for efficacy boundaries}
 
