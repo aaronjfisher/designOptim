@@ -1,7 +1,7 @@
 designOptim
 =============
 
-[![Travis-CI Build Status](https://travis-ci.org/<USERNAME>/<REPO>.png?branch=master)](https://travis-ci.org/<USERNAME>/<REPO>)
+[![Travis-CI Build Status](https://travis-ci.org/aaronjfisher/designOptim.png?branch=master)](https://travis-ci.org/aaronjfisher/designOptim)
 
 An R package for building adaptive enrichment trials, simulating trials, and searching for optimal trials. The highest level user-facing functions are
 
@@ -14,11 +14,9 @@ To install and see help pages:
 ## if needed
 install.packages("devtools")
 
-## main package
+## install package
 library(devtools)
-
 install_github('aaronjfisher/designOptim')
-
 library(designOptim)
 
 ## to access help pages
