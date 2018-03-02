@@ -88,6 +88,50 @@ The argument \code{trial_method} determines which type of trial should be perfor
 
 The \code{cases} argument should be a list of cases in which power, expected sample size and/or expected duration should be calculated. Internally, at each iteration of the search, the \code{\link{get_case_perf_obj}} function is used to evaluate the trial.
 }
+\examples{
+\dontrun{
+
+
+
+set.seed(0)
+
+## Generate example inputs
+inputsMISTIE <- getExampleInputsMISTIE(iter=50) # ~ 30 seconds
+str(inputsMISTIE,1) # list of inputs
+
+
+
+## Optimize adaptive trial
+optimized <- do.call(optimizeTrial,inputsMISTIE) #~ 4-7 minutes
+
+
+## Visualize results for approximately optimized trial
+soln <- optimized$soln
+
+
+eff_bounds<-getEffBoundFromOptimSoln(
+  soln = soln,
+  case = inputsMISTIE$cases[[1]]
+  )
+fut_bounds <- cbind(
+    soln$H01_futility_boundaries,
+    soln$H02_futility_boundaries,
+    soln$H0C_futility_boundaries
+  )[(1:soln$num_stages-1),] 
+
+matplot(data.frame(eff_bounds),type='o',pch=1:3,lty=1:3,
+  ylim=range(c(eff_bounds,fut_bounds)),
+  ylab='Boundary (z-scale)',
+  xlab='Cumulative number with outcome observed',
+  col='blue', main='Trial decision boundaries')
+matlines(fut_bounds, col='red',type='o',pch=1:3,lty=1:3)
+legend('bottomright',
+  c('H01 Eff','H02 Eff', 'H0C Eff','H01 Fut','H02 Fut', 'H0C Fut'),
+  col=rep(c('blue','red'),each=3),
+  pch=rep(1:3,times=2),lty=rep(1:3,times=2))
+
+}
+}
 \references{
 Maurer, W. and F. Bretz (2013). Multiple testing in group sequential trials using graphical approaches. \emph{Statistics in Biopharmaceutical Research.}
 }
