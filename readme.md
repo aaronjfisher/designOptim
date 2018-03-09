@@ -24,5 +24,12 @@ help(package=designOptim)
 
 ```
 
+## Updated software projects
+
+The next iteration of this project is available at
+
+[http://rosenblum.jhu.edu](http://rosenblum.jhu.edu),
+
+which provides an interactive user interface, and links to code. Readers are required to create a (free) username account.
 
 
