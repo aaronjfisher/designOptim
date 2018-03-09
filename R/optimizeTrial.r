@@ -589,17 +589,17 @@ optimizeTrial<-function(
   
 
   #Check to make sure weights of expected sample size cases sum to 1.
-  E_SS_weights <- unlist(lapply(cases, function(x){
+  case_weights <- unlist(lapply(cases, function(x){
     if(is.null(x$weight)) stop('Weights (possibly 0) must be defined for cases')
     if(is.na(x$weight)) stop('Weights (possibly 0) must be defined for cases')
     x$weight
   }), use.names=FALSE)
-  if(any(E_SS_weights < 0)) stop('Weights for cases must be nonnegative')
-  if(sum(E_SS_weights) != 1){
+  if(any(case_weights < 0)) stop('Weights for cases must be nonnegative')
+  if(sum(case_weights) != 1){
     warning('Standardizing weights for cases to sum to 1')
-    E_SS_weights<- E_SS_weights/ sum(E_SS_weights)
+    case_weights<- case_weights/ sum(case_weights)
     for(i in 1:length(cases)){
-      cases[[i]]$weight <- E_SS_weights[i]
+      cases[[i]]$weight <- case_weights[i]
     }
   }
     
