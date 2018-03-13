@@ -93,10 +93,12 @@ The \code{cases} argument should be a list of cases in which power, expected sam
 
 
 
-set.seed(0)
-
 ## Generate example inputs
-inputsMISTIE <- getExampleInputsMISTIE(iter=50) # ~ 30 seconds
+set.seed(0)
+bound_style <- 'unstructured'
+trial_method <- 'cov'
+inputsMISTIE <- getExampleInputsMISTIE(iter=50, bound_style=bound_style, trial_method=trial_method)
+inputsMISTIE$npoints_sqrt <- 9 # set to low resolution for example search for 1-stage reference trial
 str(inputsMISTIE,1) # list of inputs
 
 
@@ -108,27 +110,30 @@ optimized <- do.call(optimizeTrial,inputsMISTIE) #~ 4-7 minutes
 ## Visualize results for approximately optimized trial
 soln <- optimized$soln
 
-
-eff_bounds<-getEffBoundFromOptimSoln(
+bounds<-getBoundsFromOptimSoln(
   soln = soln,
-  case = inputsMISTIE$cases[[1]]
+  case = inputsMISTIE$cases[[1]],
+  trial_method = trial_method
   )
-fut_bounds <- cbind(
-    soln$H01_futility_boundaries,
-    soln$H02_futility_boundaries,
-    soln$H0C_futility_boundaries
-  )[(1:soln$num_stages-1),] 
+# If calculation of efficacy boundary is unstable, particularly in
+# later stages, increase soln$maxpts or decrease soln$abseps
+# and recompute eff_bounds
 
-matplot(data.frame(eff_bounds),type='o',pch=1:3,lty=1:3,
-  ylim=range(c(eff_bounds,fut_bounds)),
+
+matplot(x=cumsum(soln$n_per_stage),
+  y=data.frame(bounds$eff_bounds),type='o',pch=1:3,lty=1:3,
+  ylim=range(unlist(bounds)),
   ylab='Boundary (z-scale)',
   xlab='Cumulative number with outcome observed',
   col='blue', main='Trial decision boundaries')
-matlines(fut_bounds, col='red',type='o',pch=1:3,lty=1:3)
+matlines(x=cumsum(soln$n_per_stage)[(1:soln$num_stages-1)],
+  y=bounds$fut_bounds[(1:soln$num_stages-1),],
+  col='red',type='o',pch=1:3,lty=1:3)
 legend('bottomright',
   c('H01 Eff','H02 Eff', 'H0C Eff','H01 Fut','H02 Fut', 'H0C Fut'),
   col=rep(c('blue','red'),each=3),
   pch=rep(1:3,times=2),lty=rep(1:3,times=2))
+
 
 }
 }

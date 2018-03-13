@@ -7,7 +7,8 @@
 #' @param bound_style either 'unstructured' or 'structured'
 #' @param which_obj either 'ss' or 'dur' to minimize expected sample size or duration respectively
 #' @param iter number of search iterations 
-#' @param showiter passed to \code{\link{min_n_feasible}}
+#' @param search_stage1 whether to pre-calculate an optimal 1-stage trial
+#' @param ... passed to \code{\link{min_n_feasible}}
 #' @export
 #' @seealso \code{\link{optimizeTrial}}
 getExampleInputsMISTIE <-function(
@@ -16,7 +17,8 @@ getExampleInputsMISTIE <-function(
 	bound_style='unstructured', #
 	which_obj = 'ss',
 	iter=50,
-	showiter=FALSE
+	search_stage1 = FALSE,
+	...
 	){
 
 
@@ -106,7 +108,6 @@ getExampleInputsMISTIE <-function(
 
 	################################
 	# Search for the minimum feasible sample size
-	cat('Searching for smallest 1-stage trial that meets constraints...')
 
 
 	#For "MB" method we need to specify graph parameters
@@ -115,24 +116,30 @@ getExampleInputsMISTIE <-function(
 		stage1list <-list( graph_edge_12=1/2,graph_edge_2C=1/2, graph_edge_C1=1/2)
 	}
 
-	set.seed(1)
-	(stage1_feasible <-min_n_feasible(
-			FWER=0.025,
-			p1=p1,
-			cases=cases,
-			npoints_sqrt=9, #Set artifically low for example purposes
-			min_n=500,
-			max_n=2000,
-			step_n=20, 
-			showiter=showiter,
-			trial_method=trial_method,
-			trial_args=stage1list
-		))
+	if(!search_stage1){
+		stage1_feasible <- NULL
+		n_total <- 2100
+	}else{
+		cat('Searching for smallest 1-stage trial that meets constraints...\n')
+		(stage1_feasible <-min_n_feasible(
+				FWER=0.025,
+				p1=p1,
+				cases=cases,
+				min_n=500,
+				max_n=2000,
+				step_n=20, 
+				trial_method=trial_method,
+				trial_args=stage1list,
+				...
+				# npoints_sqrt=10, #Set artifically low for example purposes
+				# showiter=showiter,
+			))
 
 
-	n_feasible_multiplier <- 1.25
-	n_total <- stage1_feasible['n_total']  * n_feasible_multiplier
-	names(n_total)<-c()
+		n_feasible_multiplier <- 1.25
+		n_total <- stage1_feasible['n_total']  * n_feasible_multiplier
+		names(n_total)<-c()
+	}
 
 	n_per_stage <- rep(n_total/num_stages, max_K)
 		#only the first `num_stages` elements of this vector will be used, but it must be of length = max_K.
@@ -175,6 +182,8 @@ getExampleInputsMISTIE <-function(
 		graph_edge_2C = 1/2,
 		graph_edge_C1 = 1/2,
 
+		time_limit = 90, #seconds
+
 		errtol = .01,
 		#following two arguments for GanzBretz are overridden by build_precision option
 		abseps = 0.000001, 
@@ -213,6 +222,7 @@ getExampleInputsMISTIE <-function(
 	# Vector that tells which arguments to optimize over:
 	index2optim <- c(
 		'n_total',
+		'n_per_stage',
 		'H01_eff_allocated',
 		'H02_eff_allocated',
 		'H0C_eff_allocated',

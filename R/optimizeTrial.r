@@ -502,10 +502,12 @@ get_perf_mat<-function(perf_list){
 #' 
 #' 
 #' 
-#' set.seed(0)
-#' 
 #' ## Generate example inputs
-#' inputsMISTIE <- getExampleInputsMISTIE(iter=50) # ~ 30 seconds
+#' set.seed(0)
+#' bound_style <- 'unstructured'
+#' trial_method <- 'cov'
+#' inputsMISTIE <- getExampleInputsMISTIE(iter=50, bound_style=bound_style, trial_method=trial_method)
+#' inputsMISTIE$npoints_sqrt <- 9 # set to low resolution for example search for 1-stage reference trial
 #' str(inputsMISTIE,1) # list of inputs
 #' 
 #' 
@@ -517,27 +519,30 @@ get_perf_mat<-function(perf_list){
 #' ## Visualize results for approximately optimized trial
 #' soln <- optimized$soln
 #' 
-#' 
-#' eff_bounds<-getEffBoundFromOptimSoln(
+#' bounds<-getBoundsFromOptimSoln(
 #'   soln = soln,
-#'   case = inputsMISTIE$cases[[1]]
+#'   case = inputsMISTIE$cases[[1]],
+#'   trial_method = trial_method
 #'   )
-#' fut_bounds <- cbind(
-#'     soln$H01_futility_boundaries,
-#'     soln$H02_futility_boundaries,
-#'     soln$H0C_futility_boundaries
-#'   )[(1:soln$num_stages-1),] 
+#' # If calculation of efficacy boundary is unstable, particularly in
+#' # later stages, increase soln$maxpts or decrease soln$abseps
+#' # and recompute eff_bounds
 #' 
-#' matplot(data.frame(eff_bounds),type='o',pch=1:3,lty=1:3,
-#'   ylim=range(c(eff_bounds,fut_bounds)),
+#' 
+#' matplot(x=cumsum(soln$n_per_stage),
+#'   y=data.frame(bounds$eff_bounds),type='o',pch=1:3,lty=1:3,
+#'   ylim=range(unlist(bounds)),
 #'   ylab='Boundary (z-scale)',
 #'   xlab='Cumulative number with outcome observed',
 #'   col='blue', main='Trial decision boundaries')
-#' matlines(fut_bounds, col='red',type='o',pch=1:3,lty=1:3)
+#' matlines(x=cumsum(soln$n_per_stage)[(1:soln$num_stages-1)],
+#'   y=bounds$fut_bounds[(1:soln$num_stages-1),],
+#'   col='red',type='o',pch=1:3,lty=1:3)
 #' legend('bottomright',
 #'   c('H01 Eff','H02 Eff', 'H0C Eff','H01 Fut','H02 Fut', 'H0C Fut'),
 #'   col=rep(c('blue','red'),each=3),
 #'   pch=rep(1:3,times=2),lty=rep(1:3,times=2))
+#' 
 #' 
 #' }
 optimizeTrial<-function(
@@ -1049,11 +1054,26 @@ optimizeTrial<-function(
 #' @export
 #' @param soln the \code{soln} element in the returned list from \code{\link{optimizeTrial}}
 #' @param case a scenario in which to calculate boundaries, in the same format as an element of the \code{cases} list argument for \code{\link{optimizeTrial}}
-getEffBoundFromOptimSoln <- function(soln, case){
-  args_all <- c(soln,case)
-  ind_for_eff <- intersect(names(args_all),formalArgs(getEffBounds))
-  args_eff <- args_all[ind_for_eff]
+#' @param trial_method either 'cov' or 'MB'.
+getBoundsFromOptimSoln <- function(soln, case, trial_method){
+  cpo <- get_case_perf_obj(
+    base_args=soln, cases=list(case),
+    objective_fun=min_E_SS_power_constraints,
+    trial_method= trial_method, 
+    return_entries='all', 
+    skip_penalty=TRUE)
 
-  do.call(getEffBounds,args_eff)
+  fut_bounds <- as.data.frame(
+    cpo$cases[[1]][c(
+    'H01_futility_boundaries',
+    'H02_futility_boundaries',
+    'H0C_futility_boundaries')])
+  eff_bounds <- as.data.frame(
+    cpo$cases[[1]][c(
+    'H01_efficacy_boundaries',
+    'H02_efficacy_boundaries',
+    'H0C_efficacy_boundaries')])
+
+  return(list(eff_bounds=eff_bounds,fut_bounds=fut_bounds))
 }
 

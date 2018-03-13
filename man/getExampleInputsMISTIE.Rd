@@ -6,7 +6,7 @@
 \usage{
 getExampleInputsMISTIE(max_K = 4, trial_method = "cov",
   bound_style = "unstructured", which_obj = "ss", iter = 50,
-  showiter = FALSE)
+  search_stage1 = FALSE, ...)
 }
 \arguments{
 \item{max_K}{maximum number of stages}
@@ -19,7 +19,9 @@ getExampleInputsMISTIE(max_K = 4, trial_method = "cov",
 
 \item{iter}{number of search iterations}
 
-\item{showiter}{passed to \code{\link{min_n_feasible}}}
+\item{search_stage1}{whether to pre-calculate an optimal 1-stage trial}
+
+\item{...}{passed to \code{\link{min_n_feasible}}}
 }
 \description{
 Example inputs for \code{\link{optimizeTrial}}
