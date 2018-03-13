@@ -27,7 +27,7 @@ optimizeTrial(args_list_init, args_list_fixed, cases, max_K = 20,
 
 \item{logit_search}{a list of parameters for which optim will search in the logit space. This can include parameters which are  bounded to the range (0,1).}
 
-\item{local_n_search}{[DEPRECATED] (logical) whether a search over n_total should be done at each iteration of optim.}
+\item{local_n_search}{[DEPRECATED] (logical) whether a search over n_total should be done at each iteration of optim. This had previously generated the output \code{local_search_calls}.}
 
 \item{max_n_local}{[DEPRECATED] largest sample size for searches within iterations of optimization. Especially useful to set for optimizing a 1-stage design.}
 

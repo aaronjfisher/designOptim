@@ -5,12 +5,8 @@
 
 
 
-
-
-
-# Does a grid search over different allocations for a 1-stage trial.
-# Returns - 0 if not feasibly, 1 if feasible
-# If feasible, returns a alpha allocation for H01, H02 and H0C that achieves these power constraints in a parallel trial.
+###### Helper functions
+######
 
 # Interleave two vectors, v1 and v2.
 # [INTERNAL FUNCTION]
@@ -48,6 +44,12 @@ orderByMids<-function(x){
 
 }
 
+######
+######
+
+
+
+
 #' Check feasibility of power constraints
 #'
 #' Functions to check feasibility of a design, adjust the design in order to make it feasible, or adjust the constraints so that they can be achieved. Here, "feasibility" means that there exists a 1-stage design at the supplied sample size that meets the supplied power and Type I error constraints.
@@ -74,6 +76,7 @@ feasibility_check <- function(FWER, p1, trial_method, r1=0.5, r2=1-r1, n_total,c
 
 seq1 <- seq(10^-10,FWER,length=npoints_sqrt)
 seq1 <- seq1[orderByMids(order(seq1))]
+  #reordering the grid search in a smart way can let us stop the search sooner if we find a feasible design.
 if(npoints_sqrt==1) seq1 <- FWER / 3 #equal allocation to each hypothesis
 
 for(alpha_1 in seq1){
@@ -86,18 +89,15 @@ for(alpha_1 in seq1){
  
     for(case in cases){
       # Set means and variances according to user input for power constraint:
-      # Below values are just for demonstration:
-      # compute trial power at alternative
+        #!! In future we can make this code cleaner by combining many of these into trial_args
+        # (specifically p1, r1, r2, FWER), but for now we're keeping it just to avoid 
+        # compatibility errors.
 
       trial_args$iter <- 10000 #!! Hard-coded
       trial_args$FWER <- FWER
       trial_args$num_stages<-1
       trial_args$n_total<-n_total
       trial_args$n_per_stage<-c(n_total)
-
-      #!! In future we can make this code cleaner by combining many of these into trial_args
-      # (specifically p1, r1, r2, FWER), but for now we're keeping it just to avoid 
-      # compatibility errors.
       trial_args$p1<-p1
       trial_args$r1<-r1
       trial_args$r2<-r2
@@ -122,12 +122,12 @@ for(alpha_1 in seq1){
       case$performance <- do.call(buildFun,full_case_args)$performance
 
       # check that power constraints are satisfied
-      # it not, stop searching at this alpha configuration, and declare that we've failed to satisfy the requirements.
+      # if not, stop searching at this alpha configuration, and declare that we've failed to satisfy the requirements.
       # If no alpha configurations succeed, this will be the last time we change `all_constraints_satisfied`
       case_constraints_satisfied <- check_power_case(case)
       if(!case_constraints_satisfied) {
         all_constraints_satisfied <- FALSE
-        break
+        break #no need to check the remaining cases
       }
     }
 
@@ -146,6 +146,7 @@ for(alpha_1 in seq1){
 #After we've searched over all configurations with no success, stop the trial.
 return(c('feasible'=0))
 }
+
 
 # internal function
 check_power_case <-function(case){
@@ -214,7 +215,6 @@ binsearchtol <- function(fun, tol=1, range, ...){
 #' \item{soln}{Output from \code{\link{binsearch}}}.
 min_n_multistage<-function(args, cases, trial_method, objective_fun, min_n=1, max_n=min_n*1000, step_n=10, showiter=FALSE){
 
-  # The objective function must output 'base' and 'power_diffs' elements that are zero iff power constraints are met exactly, and nonnegative in n_total afterwards. We search for a target at 0.5
 
   fun4search<-function(x){
     args_x <- args
@@ -228,7 +228,7 @@ min_n_multistage<-function(args, cases, trial_method, objective_fun, min_n=1, ma
         trial_method=trial_method)
     # get_perf_mat(perf_list)
 
-    # output here generally increasing after power is met
+    # output here generally increasing after power constraint is met
     # and constant before that
     constraints_satisfied <- all(perf_list$obj$power_diffs>=0)
     if( constraints_satisfied) return(perf_list$obj$base)
@@ -358,10 +358,7 @@ max_power_feasible <- function(n_total,cases, p1, trial_method,step_multiplier=.
       #divide by x+1 to avoid dividing by zero
       #For x <= optimal multiplier, out is decreasing (towards target=5) in x but bounded above 10
       #For x >  optimal multiplier, out is zero
-      #Thus, we search for a target at 5
-
-      #Minimum range of range (x=0) must yeild out=11, as
-       # design feasibility is ensured by power_min=0 and because power cannot be negative.
+      #We search for a target at 5
     },
     range=c(0,1),
     tol=step_multiplier,
@@ -377,5 +374,4 @@ max_power_feasible <- function(n_total,cases, p1, trial_method,step_multiplier=.
   ))
 }
 
-# example:
-#min_n_feasible(max_n=2000,min_n=3000,step=5,npoints_sqrt=2,FWER=0.025,cases=cases,showiter=TRUE)
+

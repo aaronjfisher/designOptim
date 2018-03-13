@@ -28,10 +28,6 @@ sann_random <- function(fn,par, control=list()){
 	if(is.null(control$temp)) control$temp<-10000
 	temp_start <- control$temp
 
-	#!! not currently averaging simulations of fn(), but
-	# this won't be as relevant for non discrete search spaces
-	# but using minimum instead.
-
 	theta_c <- par #current theta
 	theta_log <- list()
 	fun_log <- rep(NA,control$maxit)
@@ -49,7 +45,7 @@ sann_random <- function(fn,par, control=list()){
 			#This form of sigma is motivated by trying
 			#to mimic the proposal pattern of optim.
 
-		#Core aspect of function: we evaluate function twice
+		#Core aspect of sann_random: we evaluate objective function twice
 		fp<-fn(theta_p)
 		fc<-fn(theta_c)
 
@@ -66,12 +62,8 @@ sann_random <- function(fn,par, control=list()){
 	# plot(unlist(theta_log),type='l')
 	# plot(fun_log,type='l')
 
-	#Return value:
 
-	theta_log[[which(fun_log==min(fun_log))]] #
+	theta_log[[which(fun_log==min(fun_log))]]
 		#this is especially prone to the monte-carlo error problem.
 		#but works well here better than returning final value of theta_c
-	
-	#alternatively:
-	# theta_c
 }

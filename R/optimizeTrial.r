@@ -15,21 +15,21 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c(".")) #ignore magrittr d
 
 
 # helper functions for translating between the 
-# vector that optim needs and the list that users probably want to see.
+# vector that optim needs and the list that users see.
 
 
 
 
-# Convert vectorized arguments (from `unlist`) into the format that Michael's functions expect.
-# x is a vector the total list of all possible arguments, after passing through `unlist`.
+# Convert vectorized arguments (from `unlist`) into the format expected by MR's functions for building & simulating trials.
+# x is a vector of the total list of all possible arguments, after passing through `unlist`.
 #Example for testing this function:
 #x<-unlist(c(args_list_fixed,args_list_init))
 #' @importFrom methods formalArgs
 vector2list <- function(x){
   
   nx<-names(x)
-  #argument names from Michael's functions
-  #trial_method tag !! (for searching later on if making changes)
+  #argument names from MR's functions
+  #note, check trial_method if making changes later on !!
   allArgNames <- unique(
     c(formalArgs(getEffBounds), 
     formalArgs(simTrial),
@@ -40,8 +40,8 @@ vector2list <- function(x){
   
   out<- list()
   for(i in 1:length(allArgNames)){
-    arg_ind<-grepl(allArgNames[i],nx) #!!!!! note, arg names shouldn't contain each other or grep will be confused !!
-      ## !!!!! FWER and FWER_allocation_matrix do!! Although it's not a problem now b/c you don't initilize FWER_allocation_matrix
+    arg_ind<-grepl(allArgNames[i],nx) #!! Future note - arg names shouldn't contain each other or grep will be confused
+      ## !! FWER and FWER_allocation_matrix do, although it's not a problem now b/c we don't initilize and search for FWER_allocation_matrix
     if(!any(arg_ind)) next #skip un-specified args
     
     out[[allArgNames[i]]] <- x[arg_ind]
@@ -89,8 +89,8 @@ logit <- function(p){
 }
 ######
 
-#convert arguments to Michael's functions to logit space, where theta will search.
-#then, within the optimization function, convert back.
+#convert arguments to MR's functions to logit search space
+#then, within the optimization objective function, convert back.
 #x is a list of arguments
 args_to_logit_space<-function(x,logit_search){
   out <- x #output will be the same except for at logit_search entries
@@ -122,7 +122,6 @@ cleanArgList<-function(x, max_K, min_n_total=10){
 
   # (optional) Note for how this could be made cleaner:
     # Replace all instances of K or 1:K in this function with keep_ind. In addition to dropping stages >K, drop stages with n_stage=0.
-      # This would make it much cleaner.
       # This change would not quite be the same as our submitted work
 
   #First, we need to know how long our vectors should be.
@@ -148,7 +147,8 @@ cleanArgList<-function(x, max_K, min_n_total=10){
   
   ##############
   # Code in this chunk can also be handled by searching
-  # over the logit_space for nonnegative or decimal parameters.
+  # over the logit space for nonnegative or decimal parameters.
+  # So, if also using logit_search, some of these checks may be redundant.
   
   x$p1 <- edit_null(x$p1,min_a=smallNum, max_a = 1-smallNum)
   x$r1 <- edit_null(x$r1,min_a=smallNum, max_a = 1-smallNum)
@@ -207,7 +207,7 @@ cleanArgList<-function(x, max_K, min_n_total=10){
   #######
   # Adjust allocated errors so they sum to FWER
   # Note, this must come *after* we truncate efficacy allocated by K.
-  # This is already done in the code for getEffBounds, but
+  # This is already done within the code for getEffBounds, but
   # nice to have also in the clean output from optimizeTrial
   if(is.null(x$FWER_allocation_matrix) & 
       !any(is.null(x$H01_eff_allocated)) &
@@ -278,8 +278,8 @@ get_E_SS<-function(cases){
 
 # skip_penalty: sometimes valid designs will incur a penalty due to monte 
 # carlo error. If you know, in theory, that a design shouldn't have a
-# penalty, you can force it not to with this argument. This is equivalent 
-# to using base_obj, but stores the result different 
+# penalty, you can push it not to with this argument. This is equivalent 
+# to using base_obj, but stores the result in a different 
 # way (for useful for consistency with other version of this code).
 min_perf_power_constraints<-function(cases, metric, skip_penalty, exp_p=3){
   ########
@@ -298,9 +298,9 @@ min_perf_power_constraints<-function(cases, metric, skip_penalty, exp_p=3){
   #######
   #Calculate objective function to minimize:
   power_penalty <- (abs(power_mins-achieved_power)*100)^exp_p * (achieved_power < power_mins) 
-  #This penalty should be pth order differentiable
+    #Let the penalty be pth order differentiable
   if(skip_penalty) power_penalty <- 0 
-    #!! In future, could adjust this and functions that call 
+    #!! In future, could adjust this and functions that 
     # access history of objective function to just use base_obj, and 
     # not bother with this skip_penalty
   base_obj <- sum(unlist(lapply(cases, function(x){
@@ -311,7 +311,7 @@ min_perf_power_constraints<-function(cases, metric, skip_penalty, exp_p=3){
   ######
   names(penalized_obj)<-c()
 
-  # additional diagnostics which can be used to assess convexity at the found solution  
+  # additional diagnostics to assess the found solution  
     # negative indicates insufficient power.
   power_diffs <- achieved_power - power_mins
 
@@ -462,7 +462,7 @@ get_perf_mat<-function(perf_list){
 #' @param max_K an upper limit for the number of stages for the trial. \code{optimizeTrial} will not search for trials with more stages than this.
 #' @param objective_fun objective function to minimize. This depends on the evaluation of the current proposed design at each element of \code{cases}. Pre-set options that can be used are \code{\link{min_E_SS_power_constraints}} and \code{\link{min_E_dur_power_constraints}}. If a custom objective function is supplied here instead, it must be able to run in the context of the \code{\link{get_case_perf_obj}} function, and give output in the same format as that of \code{\link{min_E_SS_power_constraints}}.
 #' @param logit_search a list of parameters for which optim will search in the logit space. This can include parameters which are  bounded to the range (0,1).
-#' @param local_n_search [DEPRECATED] (logical) whether a search over n_total should be done at each iteration of optim.
+#' @param local_n_search [DEPRECATED] (logical) whether a search over n_total should be done at each iteration of optim. This had previously generated the output \code{local_search_calls}.
 #' @param max_n_local [DEPRECATED] largest sample size for searches within iterations of optimization. Especially useful to set for optimizing a 1-stage design.
 #' @param min_n_local [DEPRECATED] smallest sample size for searches within iterations of optimization. Especially useful to set for optimizing a 1-stage design.
 #' @param time_limit_optim_cpu used to set a session time limit (see \code{\link{setSessionTimeLimit}}).
@@ -580,11 +580,11 @@ optimizeTrial<-function(
   missing_core_args<-core_args[!core_args %in% names(args_list_all)]
   if(length(missing_core_args)>0) stop(paste(c('Must include the following variables in either args_list_fixed or args_list_init:',missing_core_args),collapse=' '))
   if(any(duplicated(names(args_list_all)))) stop('args_list_init and args_list_fixed cannot share element names')
-  if(args_list_all['p1']>=1 | args_list_all['p1'] <=0) stop('p1 must be set betwen 0 and 1') #!! Possible redundant with other checks. E_dur will be set to NaN in some cases if this happens.
-  if('FWER_allocation_matrix' %in% args_list_all) stop('optimization of FWER_allocation_matrix not supported. Use individual alpha allocations instead.') #!! to avoid the issue with FWER and FWER_allocation_matrix being contained in each other and confusing grep.
+  if(args_list_all['p1']>=1 | args_list_all['p1'] <=0) stop('p1 must be set betwen 0 and 1') # Possibly redundant with other checks, but that is good. E_dur will be set to NaN in some cases if this happens.
+  if('FWER_allocation_matrix' %in% args_list_all) stop('optimization of FWER_allocation_matrix not supported. Use individual alpha allocations instead.') #to avoid the issue with FWER and FWER_allocation_matrix being contained in each other and confusing grep.
 
   #Omit parts of logit search that we don't search over, as this can
-  #inverse transforming the wrong arguments later on
+  #inverse transform the wrong arguments later on
   logit_search <- intersect(logit_search, names(args_list_init))
   
 
@@ -718,7 +718,9 @@ optimizeTrial<-function(
   
   
   
-  # optim_iterations and fullPath are defined in this environment, 
+  # optim_iterations, fullPath and 
+  # local_search_calls (local_search_calls is now DEPRECATED) 
+  # are defined in this environment, later on, 
   # just before calling optim
   
   # Function (of theta) which optim will call and optimize.
@@ -752,13 +754,17 @@ optimizeTrial<-function(
     
     if(!local_n_search) local_search_calls <<- c(local_search_calls,0)
     if( local_n_search){
+      # This option is no longer being used or maintained.
+      # It is listed as DEPRECATED in the documentation
+      # It did not appear to help optimization very much,
+      # although it might yet be improved in future versions.
+    
       
       if(is.null(max_n_local)) max_n_local <- max(n_feasible,args_all$n_total)*5      
       if(is.null(min_n_local)) min_n_local <- n_feasible
       ##!! Future note - hard-coding could be removed
       # User specified max and min allows this to be 
       # used with either a 1-stage or multi-stage optimization.
-      # For a 1-stage, set max_n = 1-stage semi optimal design.
       
       suppressWarnings({
         n_local <-
@@ -780,9 +786,7 @@ optimizeTrial<-function(
 
     }
 
-    #Get power under alternatives, expected sample size, 
-    #and 
-
+    #Evaluate the performance of the design for each case
     iter_time<-system.time({
       perf_list<-get_case_perf_obj(args_all,
                                 cases = cases,
@@ -862,9 +866,9 @@ optimizeTrial<-function(
   
   ######## 
   # Variables to keep track of the progress of optim.
+  # These variables are defined in the parent env of fun2opt, but not the global env.
   fullPath<- list()
   optim_iterations <- 0 # A counter to see how many times fun2opt is called.
-  # Variables are defined in the parent env of fun2opt, but not the global env.
   local_search_calls <- c() #vector of iterations for local search at each iteration of optimization.
   
   #This function must be defined in same env as fullPath.
@@ -905,7 +909,7 @@ optimizeTrial<-function(
       'H01_futility_boundaries'=-Inf,
       'H02_futility_boundaries'=-Inf,
       'H0C_futility_boundaries'=-Inf,
-      'graph_edge_12'=1/2, #!! Needed, otherwise we get missing args for MB trials. Better to have as defined from a separate search though.
+      'graph_edge_12'=1/2, #!! Need to specify, otherwise we get missing args for MB trials. It would be better to have as defined from a separate search, but this is just a rough starting point.
       'graph_edge_2C'=1/2,
       'graph_edge_C1'=1/2,
       stage1_feasible[names(stage1_feasible)!='feasible']
@@ -994,12 +998,11 @@ optimizeTrial<-function(
     warning('No sequential trial was found with a better performance than that of a standard 1-stage trial testing the same hypothesis. Returning a trial with only 1 stage.')
   }else{
     # If we have found an admissable multistage trial design:
-    # change n_total,such that trial has minimum n needed to achieve power
+    # update n_total, such that trial has minimum n needed to achieve power
     # do this *before* cross-validated assessment of trial performance
     # otherwise, we run the risk of getting a trial with too low 
-    # power, due a chance occurence than an underpowered and low sample
-    # size trial has happened to do well in the optimation seach, 
-    # simply due to chance and, essentially, multiple testing.
+    # power, due to a chance occurence that an underpowered trial
+    # happened to do well in the optimation seach iteration.
 
     # !! Note !! This step makes the procedure slightly less flexible
     # as it is assumed that power is monotonically
@@ -1025,7 +1028,7 @@ optimizeTrial<-function(
   
   
   return(list(
-    'soln'=soln, #Reporting just part of this list of arguments (e.g. just the solutions from optim) is tricky because in order to clean and process them, we need all arguments anyway (e.g. we need FWER)
+    'soln'=soln, #We report the full solution here. Reporting just part of this list of arguments (e.g. just the solutions from optim) is tricky because in order to clean and process them we need all arguments anyway (e.g. we need FWER)
     'performance_crossvalidated' = perf_mat,
     'obj_final_crossvalidated' = perf_list$obj,
     'optim_results'= optimized,
@@ -1033,9 +1036,9 @@ optimizeTrial<-function(
     'fullPath' = fullPath,
     'time_optimized'=time_optimized,
     'stage1_feasible'=stage1_feasible,
-    'feasible'=TRUE,#!!deprecated!!
+    'feasible'=TRUE,#!!deprecated!! (noted in documentation)
     'optim_iterations'=optim_iterations,
-    'local_search_calls'=local_search_calls
+    'local_search_calls'=local_search_calls #!!deprecated!! (noted in documentation)
   ))
 }
 

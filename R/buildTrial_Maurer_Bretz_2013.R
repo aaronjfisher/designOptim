@@ -103,7 +103,7 @@ for(j in 1:num_stages){
 }}
 
 ##
-## Precompute boundaries for each possible subset of rejected null hypotheses under Maurer Bretz algorithm (Section 3.2 of their paper).
+## Precompute boundaries for each possible subset of rejected null hypotheses under Maurer Bretz algorithm (Section 3.2 of MB paper).
 ##
 
 # Below, ordering of null hypothesis is H01, H02, H0C being first, second, third (only relevant in understanding the notation)
@@ -131,7 +131,7 @@ for(j in 1:num_stages){
 	       # determine boundaries for each null hypothesis over all stages
 	       for(null_hyp in 1:3){
 	       		    alpha_allocation <- FWER*hypothesis_weights[null_hyp]*switch(null_hyp,H01_eff_allocated/sum(H01_eff_allocated),H02_eff_allocated/sum(H02_eff_allocated),H0C_eff_allocated/sum(H0C_eff_allocated))			   
-	       		    if(is.na(sum(alpha_allocation))) stop('invalid alpha allocation')#AF - Note, I think this error check is because we could end up with 0/0 in switch, above? (!!)
+	       		    if(is.na(sum(alpha_allocation))) stop('invalid alpha allocation')
 	       		    efficacy_boundary_existing <- c()
 			    cumulative_alpha_allocation <- 0
 			    for(index in 1:num_stages){
