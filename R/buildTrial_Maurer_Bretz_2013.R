@@ -212,10 +212,6 @@ delay,
 
 setTimeLimit(time_limit) # stops computation if taking greater than time_limit
 
-if(is.null(all_efficacy_boundaries)){	
-    all_efficacy_boundaries <- getEffBounds_Maurer_Bretz_2013(p1=p1,r1=r1,r2=r2,var_s1_trt=var_s1_trt,var_s1_con=var_s1_con,var_s2_trt=var_s2_trt,var_s2_con=var_s2_con,num_stages=num_stages,n_per_stage=n_per_stage, time_limit=time_limit,...)
-}
-
 if(!is.null(n_total)) n_per_stage <- n_total*n_per_stage/sum(n_per_stage)
 
 p2 <- (1-p1)
@@ -337,7 +333,9 @@ if(!is.null(delta_futility)){
 ## Determine outcomes of each simulated trial   
 ##
 
-   
+	if(is.null(all_efficacy_boundaries)){	
+    	all_efficacy_boundaries <- getEffBounds_Maurer_Bretz_2013(p1=p1,r1=r1,r2=r2,var_s1_trt=var_s1_trt,var_s1_con=var_s1_con,var_s2_trt=var_s2_trt,var_s2_con=var_s2_con,num_stages=num_stages,n_per_stage=n_per_stage, time_limit=time_limit,...)
+	}
     # indicators of rejecting null hypotheses:
 	reject_H01 <- rep(0,iter)
 	reject_H02 <- rep(0,iter)
